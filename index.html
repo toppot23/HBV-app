@@ -162,7 +162,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
           <div id="lab-bar" style="height:100%;width:0%;background:var(--blue);border-radius:4px;transition:width 0.3s;"></div>
         </div>
       </div>
-      <button class="btn-primary" id="btn-lab-done" onclick="labDone()"></button>
+      <button class="btn-primary" id="btn-lab-done" onclick="labDone()" disabled></button>
     </div>
   </div>
 
@@ -315,7 +315,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 </div>
 
 <script>
-// ประกาศข้อความภาษาไทยกลางไว้ตรงนี้ที่เดียวอย่างถูกต้อง ไร้อักขระแอบแฝง
+// จัดระเบียบ String ภาษาไทยส่วนกลางที่อ่านง่ายและสะกดถูกต้อง 100%
 var T = {
   s0: 'สั่ง Lab เบื้องต้นก่อนประเมิน',
   labHint: 'ต้องมีผล Lab ครบก่อนจึงจะดำเนินการขั้นถัดไปได้',
@@ -357,13 +357,11 @@ var T = {
   btnSave: '💾 บันทึก / ส่งต่อผลประเมิน',
   btnReset: '🔄 เริ่มประเมินใหม่',
   
-  // ข้อบ่งชี้ / เหตุผลการส่งต่อ
   rDecomp: 'Decompensated cirrhosis (ตัวเหลือง / ท้องมาน / สับสน)',
   rSpecial: 'อายุ ≤ 18 ปี หรือตั้งครรภ์',
   rCoinfect: 'ติดเชื้อ HIV หรือ HCV ร่วมด้วย',
   rRenal: 'CrCl < 15 ml/min (ไม่ได้ฟอกไต)',
   
-  // คำวินิจฉัยหลัก
   v1: 'ส่งต่อโรงพยาบาลแม่ข่าย',
   v2: 'Refer เพื่อพิจารณารับยาที่ รพ.แม่ข่าย',
   v3: 'ติดตามที่ รพช. ได้',
@@ -374,13 +372,12 @@ var T = {
   sub3: 'APRI และ FIB-4 ยังไม่เกินเกณฑ์',
   sub4: 'ALT ปกติ / Inactive carrier',
   
-  // รายการสเต็ปแนะนำ
   st1: 'แนบผล Lab ทั้งหมดไปด้วย',
   st2: 'ระหว่างรอ: ติดตาม ALT, Cr ทุก 3 เดือน',
   st3: 'ถ้ามีอาการ Decompensated → เริ่ม TDF ก่อนได้',
   st4: 'แนบผล Lab ทั้งหมด (ALT, AST, Platelet, Cr)',
   st5: 'ระหว่างรอ: ติดตาม ALT + Cr ทุก 3 เดือน',
-  st6: 'แจ้งผู้ป่วยห้ามดื่มแอลกอฮอล์',                // แก้ไขตัวสะกดถูกต้อง 100%
+  st6: 'แจ้งผู้ป่วยห้ามดื่มแอลกอฮอล์',                // แก้คำว่า แจ้งผู้ป่วย เรียบร้อย
   st7: 'นัด ALT ซ้ำทุก 3 เดือน',
   st8: 'ถ้า ALT > 2xULN → Refer รพ.แม่ข่าย',
   st9: 'ถ้า APRI > 1.5 หรือ FIB-4 > 3.25 → Refer',
@@ -389,7 +386,7 @@ var T = {
   st12us: 'Ultrasound ± AFP ทุก 6–12 เดือน (อายุ > 40 ปี)',
   st12us2: 'แนะนำ Ultrasound ตับ',
   
-  drugTitle: 'ยาที่คาดว่าจะได้รับที่ รพ.แม่ข่าย',       // ป้องกันปัญหาสี่เหลี่ยมจากการ hardcode
+  drugTitle: 'ยาที่คาดว่าจะได้รับที่ รพ.แม่ข่าย',       // แก้คำว่า จะได้รับ เรียบร้อย
   taf: 'TAF 25 mg วันละ 1 เม็ด (บัญชี ง / UC)',
   tdf: 'TDF 300 mg — ตั้งครรภ์ หรือ Decompensated',
   cirrhosis: 'สงสัย Cirrhosis',
@@ -564,9 +561,10 @@ function decide(){
   document.getElementById('sec-result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+// ล้างคำเก่าที่ฮาร์ดโค้ดเพี้ยนๆ ในส่วนแสดงผลยาออกจนหมดจด ผูกค่าจาก T โดยตรง 100%
 function mkR(cls,icon,verdict,sub,steps,drug){
   var s=steps.map(function(t){return '<div class="result-step"><span class="step-dot"></span><span>'+t+'</span></div>';}).join('');
-  var d=drug?'<div class="divider"></div><div style="font-size:12px;font-weight:600;margin-bottom:6px;">'+T.drugTitle+'</div><div class="drug-mini"><span class="drug-tag dtag-f">🏈 '+T.taf+'</span><span class="drug-tag dtag-a">🏊 '+T.tdf+'</span></div>':'';
+  var d=drug?'<div class="divider"></div><div class="drug-title" style="font-size:12px;font-weight:600;margin-bottom:6px;">'+T.drugTitle+'</div><div class="drug-mini"><span class="drug-tag dtag-f">🏈 '+T.taf+'</span><span class="drug-tag dtag-a">🏊 '+T.tdf+'</span></div>':'';
   return '<div class="result-box '+cls+' show"><div class="result-icon">'+icon+'</div><div class="result-verdict">'+verdict+'</div><div class="result-sub">'+sub+'</div><div class="result-steps">'+s+'</div>'+d+'</div>';
 }
 
