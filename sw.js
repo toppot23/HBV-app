@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hbv-tool-v2';
+const CACHE_NAME = 'hbv-tool-v3';
 const urlsToCache = [
   './',
   './index.html',
