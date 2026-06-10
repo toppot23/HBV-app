@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HBsAg+ Decision Tool</title>
+
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1a56db">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#f5f3ef;--white:#fff;--ink:#1a1a1a;--ink2:#4a4a4a;--ink3:#8a8a8a;--rule:#e0dcd6;
+  --blue:#1a56db;--blue-bg:#eff4ff;--blue-bd:#c3d0f4;
+  --green:#057a55;--green-bg:#f0fdf4;--green-bd:#a7f0c9;
+  --amber:#b45309;--amber-bg:#fffbeb;--amber-bd:#fcd34d;
+  --red:#c81e1e;--red-bg:#fff5f5;--red-bd:#fca5a5;
+  --slate:#374151;--slate-bg:#f9fafb;--slate-bd:#d1d5db;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--ink);
+  padding:16px 12px 80px;min-height:100vh;font-size:15px;line-height:1.65;
+  -webkit-tap-highlight-color:transparent;}
+@media(min-width:600px){body{padding:24px 20px 80px;font-size:14px;}}
+.page-header{max-width:580px;margin:0 auto 20px;padding-bottom:16px;border-bottom:2px solid var(--ink);}
+.page-header .tag{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;}
+.page-header h1{font-size:22px;font-weight:700;line-height:1.25;}
+.page-header h1 span{color:var(--blue);}
+.page-header .sub{margin-top:6px;font-size:12.5px;color:var(--ink3);}
+.wrap{max-width:580px;margin:0 auto;display:flex;flex-direction:column;}
+.section{background:var(--white);border:1px solid var(--rule);border-radius:14px;overflow:hidden;transition:box-shadow 0.2s;margin-bottom:12px;}
+.section.active{box-shadow:0 0 0 2px var(--blue);}
+.section.done{opacity:0.55;}
+.sec-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--rule);background:var(--slate-bg);}
+.sec-num{width:26px;height:26px;background:var(--ink);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.sec-num.done-num{background:var(--green);}
+.sec-title{font-size:14px;font-weight:600;}
+.sec-body{padding:16px;}
+@media(min-width:600px){.sec-body{padding:20px;}}
+.field-group{display:flex;flex-direction:column;gap:14px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:13px;font-weight:600;color:var(--ink2);}
+.field-hint{font-size:12px;color:var(--ink3);}
+.input-row{display:flex;gap:8px;align-items:center;}
+.input-row input[type=number]{width:110px;padding:11px 12px;border:1.5px solid var(--rule);
+  border-radius:10px;font-size:16px;font-family:'IBM Plex Mono',monospace;
+  background:var(--white);color:var(--ink);outline:none;-webkit-appearance:none;}
+.input-row input:focus{border-color:var(--blue);}
+.input-unit{font-size:13px;color:var(--ink3);}
+.range-wrap{display:flex;flex-direction:column;gap:6px;}
+.range-top{display:flex;justify-content:space-between;align-items:center;}
+.range-val{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--blue);}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;background:var(--rule);border-radius:4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--blue);border-radius:50%;cursor:pointer;border:3px solid var(--white);}
+.range-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);}
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap;}
+.toggle-btn{padding:10px 18px;border-radius:10px;border:1.5px solid var(--rule);background:var(--white);color:var(--ink2);font-size:14px;font-family:inherit;cursor:pointer;transition:all 0.15s;font-weight:500;min-height:44px;}
+.toggle-btn:hover{border-color:var(--blue);color:var(--blue);}
+.toggle-btn.sel-yes{background:var(--red-bg);border-color:var(--red);color:var(--red);font-weight:700;}
+.toggle-btn.sel-no{background:var(--green-bg);border-color:var(--green);color:var(--green);font-weight:700;}
+.calc-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.calc-chip{display:flex;flex-direction:column;align-items:center;padding:8px 14px;border-radius:8px;border:1px solid;min-width:100px;text-align:center;}
+.chip-label{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;}
+.chip-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;}
+.chip-grade{font-size:11px;margin-top:2px;}
+.chip-low{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
+.chip-mid{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber);}
+.chip-high{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
+.chip-neutral{background:var(--slate-bg);border-color:var(--slate-bd);color:var(--slate);}
+.btn-primary{display:block;width:100%;padding:14px;border-radius:12px;background:var(--blue);color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:background 0.15s;margin-top:16px;min-height:50px;-webkit-appearance:none;}
+.btn-primary:hover{background:#1446b8;}
+.btn-primary:disabled{background:var(--rule);color:var(--ink3);cursor:not-allowed;}
+.btn-reset{display:block;width:100%;padding:12px;border-radius:10px;background:transparent;border:1.5px solid var(--rule);color:var(--ink3);font-size:14px;font-family:inherit;cursor:pointer;transition:all 0.15s;margin-top:10px;min-height:46px;}
+.btn-save{display:block;width:100%;padding:14px;border-radius:12px;background:#1a1a2e;color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;margin-top:10px;min-height:50px;-webkit-appearance:none;}
+.btn-save:disabled{background:var(--rule);color:var(--ink3);cursor:not-allowed;}
+.result-box{border-radius:12px;padding:18px;border:2px solid;margin-top:4px;display:none;}
+.result-box.show{display:block;}
+.result-box.r-watch{background:var(--amber-bg);border-color:var(--amber-bd);}
+.result-box.r-monitor{background:var(--blue-bg);border-color:var(--blue-bd);}
+.result-box.r-refer{background:var(--red-bg);border-color:var(--red);}
+.result-icon{font-size:32px;margin-bottom:8px;}
+.result-verdict{font-size:19px;font-weight:700;margin-bottom:4px;}
+.result-sub{font-size:13.5px;margin-bottom:12px;color:var(--ink2);}
+.result-steps{display:flex;flex-direction:column;gap:8px;}
+.result-step{display:flex;gap:10px;align-items:flex-start;font-size:14px;}
+.step-dot{flex-shrink:0;margin-top:7px;width:6px;height:6px;border-radius:50%;background:currentColor;}
+.r-watch .result-verdict{color:var(--amber);}
+.r-monitor .result-verdict{color:var(--blue);}
+.r-refer .result-verdict{color:var(--red);}
+.drug-mini{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.drug-tag{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid;}
+.dtag-f{background:var(--green-bg);color:var(--green);border-color:var(--green-bd);}
+.dtag-a{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd);}
+.refer-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.refer-item{display:flex;gap:8px;font-size:13px;padding:8px 10px;border-radius:7px;background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);}
+.divider{height:1px;background:var(--rule);margin:10px 0;}
+.alt-mult{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.mult-chip{padding:5px 12px;border-radius:7px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;border:1px solid;cursor:pointer;transition:all 0.15s;}
+.mc-normal{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd);}
+.mc-1x{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd);}
+.mc-2x{background:#fff0f0;color:var(--red);border-color:#fca5a5;}
+.mult-chip.sel{box-shadow:0 0 0 2px var(--blue);}
+.lab-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;border:1.5px solid var(--rule);background:var(--white);cursor:pointer;transition:all 0.15s;user-select:none;}
+.lab-item:hover{border-color:var(--blue);background:var(--blue-bg);}
+.lab-item.checked{border-color:var(--green);background:var(--green-bg);}
+.lab-check{font-size:16px;flex-shrink:0;margin-top:1px;}
+.lab-name{font-size:13px;font-weight:700;}
+.lab-detail{font-size:11.5px;color:var(--ink3);margin-top:1px;}
+.lab-item.checked .lab-detail{color:var(--green);}
+@media(min-width:480px){#lab-checklist{grid-template-columns:1fr 1fr;}}
+@media(max-width:400px){.calc-chip{min-width:72px;padding:7px 8px;}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="tag">Interactive Decision Tool · รพช.</div>
+  <h1>HBsAg Positive<br><span>ต้องทำอะไรต่อ?</span></h1>
+  <div class="sub">กรอกค่า Lab แล้วระบบจะแนะนำแนวทางให้เลย · ไม่ต้องใช้ HBV DNA / HBeAg</div>
+</div>
+
+<div class="wrap">
+
+  <div class="section" id="s0">
+    <div class="sec-head" style="background:var(--blue-bg);border-bottom-color:var(--blue-bd);">
+      <span class="sec-num" id="n0" style="background:var(--blue);">0</span>
+      <span class="sec-title" id="t-s0"></span>
+    </div>
+    <div class="sec-body">
+      <div style="font-size:12px;color:var(--ink3);margin-bottom:10px;" id="t-lab-hint"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="lab-checklist">
+        <label class="lab-item" onclick="toggleLab(this,'cbc')">
+          <div class="lab-check" id="chk-cbc">&#9744;</div>
+          <div><div class="lab-name">CBC</div><div class="lab-detail" id="t-cbc"></div></div>
+        </label>
+        <label class="lab-item" onclick="toggleLab(this,'bun')">
+          <div class="lab-check" id="chk-bun">&#9744;</div>
+          <div><div class="lab-name">BUN</div><div class="lab-detail" id="t-bun"></div></div>
+        </label>
+        <label class="lab-item" onclick="toggleLab(this,'cr')">
+          <div class="lab-check" id="chk-cr">&#9744;</div>
+          <div><div class="lab-name">Creatinine</div><div class="lab-detail" id="t-cr"></div></div>
+        </label>
+        <label class="lab-item" onclick="toggleLab(this,'ast')">
+          <div class="lab-check" id="chk-ast">&#9744;</div>
+          <div><div class="lab-name">AST</div><div class="lab-detail" id="t-ast"></div></div>
+        </label>
+        <label class="lab-item" onclick="toggleLab(this,'alt')" style="grid-column:1/-1;">
+          <div class="lab-check" id="chk-alt">&#9744;</div>
+          <div><div class="lab-name">ALT</div><div class="lab-detail" id="t-alt"></div></div>
+        </label>
+      </div>
+      <div style="margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+          <span style="font-size:11.5px;color:var(--ink3);" id="t-lab-count-label"></span>
+          <span style="font-size:12px;font-weight:700;color:var(--blue);" id="lab-count">0 / 5</span>
+        </div>
+        <div style="height:6px;background:var(--rule);border-radius:4px;overflow:hidden;">
+          <div id="lab-bar" style="height:100%;width:0%;background:var(--blue);border-radius:4px;transition:width 0.3s;"></div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-lab-done" onclick="labDone()" disabled id="t-btn-lab-done"></button>
+    </div>
+  </div>
+
+  <div class="section" id="sA" style="display:none;">
+    <div class="sec-head">
+      <span class="sec-num" id="nA">A</span>
+      <span class="sec-title" id="t-sA"></span>
+    </div>
+    <div class="sec-body">
+      <div class="field-group">
+        <div class="field">
+          <label id="t-q-decomp"></label>
+          <div class="field-hint" id="t-q-decomp-hint"></div>
+          <div class="toggle-group">
+            <button class="toggle-btn" onclick="setToggle('decomp','yes',this)" id="t-yes1"></button>
+            <button class="toggle-btn" onclick="setToggle('decomp','no',this)" id="t-no1"></button>
+          </div>
+        </div>
+        <div class="field">
+          <label id="t-q-special"></label>
+          <div class="toggle-group">
+            <button class="toggle-btn" onclick="setToggle('special','yes',this)" id="t-yes2"></button>
+            <button class="toggle-btn" onclick="setToggle('special','no',this)" id="t-no2"></button>
+          </div>
+        </div>
+        <div class="field">
+          <label id="t-q-coinfect"></label>
+          <div class="toggle-group">
+            <button class="toggle-btn" onclick="setToggle('coinfect','yes',this)" id="t-yes3"></button>
+            <button class="toggle-btn" onclick="setToggle('coinfect','no',this)" id="t-no3"></button>
+          </div>
+        </div>
+        <div class="field">
+          <label id="t-q-renal"></label>
+          <div class="toggle-group">
+            <button class="toggle-btn" onclick="setToggle('renal','yes',this)" id="t-yes4"></button>
+            <button class="toggle-btn" onclick="setToggle('renal','no',this)" id="t-no4"></button>
+          </div>
+        </div>
+      </div>
+      <div id="refer-result" class="result-box r-refer" style="display:none;">
+        <div class="result-icon">&#128228;</div>
+        <div class="result-verdict" id="t-refer-verdict"></div>
+        <div class="result-sub" id="t-refer-sub"></div>
+        <div class="refer-list" id="refer-reasons"></div>
+        <div class="divider"></div>
+        <div style="font-size:13px;color:var(--red);" id="t-refer-note"></div>
+      </div>
+      <button class="btn-primary" id="btn-refer" onclick="checkRefer()" disabled id="t-btn-refer"></button>
+    </div>
+  </div>
+
+  <div class="section" id="sB" style="display:none;">
+    <div class="sec-head">
+      <span class="sec-num">B</span>
+      <span class="sec-title" id="t-sB"></span>
+    </div>
+    <div class="sec-body">
+      <div class="field-group">
+        <div class="field">
+          <label id="t-alt-label"></label>
+          <div class="input-row">
+            <input type="number" id="alt-val" min="1" max="2000" oninput="updateCalc()">
+            <span class="input-unit">U/L</span>
+          </div>
+        </div>
+        <div class="field">
+          <label id="t-uln-label"></label>
+          <div class="field-hint" id="t-uln-hint"></div>
+          <div class="range-wrap">
+            <div class="range-top">
+              <span style="font-size:12px;color:var(--ink3)" id="t-uln-prefix"></span>
+              <span class="range-val" id="uln-display">40</span>
+              <span class="input-unit">U/L</span>
+            </div>
+            <input type="range" id="uln-range" min="25" max="55" step="5" value="40" oninput="updateULN()">
+            <div class="range-labels"><span>25</span><span id="t-uln-f">35 (&#9792;)</span><span id="t-uln-m">40 (&#9794;)</span><span>55</span></div>
+          </div>
+          <div style="font-size:11.5px;color:var(--ink3);margin-top:4px;" id="t-mult-hint"></div>
+          <div class="alt-mult">
+            <span class="mult-chip mc-normal" onclick="setAltMult(1,event)">1&#215; ULN</span>
+            <span class="mult-chip mc-1x" onclick="setAltMult(1.5,event)">1.5&#215; ULN</span>
+            <span class="mult-chip mc-1x" onclick="setAltMult(2,event)">2&#215; ULN</span>
+            <span class="mult-chip mc-2x" onclick="setAltMult(3,event)">3&#215; ULN</span>
+            <span class="mult-chip mc-2x" onclick="setAltMult(5,event)">5&#215; ULN</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="field">
+          <label id="t-ast-label"></label>
+          <div class="input-row">
+            <input type="number" id="ast-val" min="1" max="2000" oninput="updateCalc()">
+            <span class="input-unit">U/L</span>
+          </div>
+          <div class="field-hint" id="t-ast-hint"></div>
+        </div>
+        <div class="field">
+          <label id="t-astuln-label"></label>
+          <div class="range-wrap">
+            <div class="range-top">
+              <span style="font-size:12px;color:var(--ink3)" id="t-astuln-prefix"></span>
+              <span class="range-val" id="ast-uln-display">40</span>
+              <span class="input-unit">U/L</span>
+            </div>
+            <input type="range" id="ast-uln-range" min="25" max="55" step="5" value="40" oninput="updateASTULN()">
+          </div>
+        </div>
+        <div class="field">
+          <label id="t-plt-label"></label>
+          <div class="input-row">
+            <input type="number" id="plt-val" min="1" max="1000" oninput="updateCalc()">
+            <span class="input-unit">&#215; 10&#8313;/L</span>
+          </div>
+        </div>
+        <div class="field">
+          <label id="t-age-label"></label>
+          <div class="input-row">
+            <input type="number" id="age-val" min="1" max="110" oninput="updateCalc()">
+            <span class="input-unit" id="t-age-unit"></span>
+          </div>
+        </div>
+      </div>
+      <div id="calc-row" class="calc-row" style="display:none;">
+        <div class="calc-chip chip-neutral" id="chip-altm">
+          <span class="chip-label">ALT/ULN</span>
+          <span class="chip-val" id="val-alt-mult">&#8212;</span>
+          <span class="chip-grade" id="grade-alt-mult"></span>
+        </div>
+        <div class="calc-chip chip-neutral" id="chip-apri">
+          <span class="chip-label">APRI</span>
+          <span class="chip-val" id="val-apri">&#8212;</span>
+          <span class="chip-grade" id="grade-apri"></span>
+        </div>
+        <div class="calc-chip chip-neutral" id="chip-fib4">
+          <span class="chip-label">FIB-4</span>
+          <span class="chip-val" id="val-fib4">&#8212;</span>
+          <span class="chip-grade" id="grade-fib4"></span>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-decide" onclick="decide()" disabled id="t-btn-decide"></button>
+    </div>
+  </div>
+
+  <div id="sec-result" style="display:none;">
+    <div id="main-result"></div>
+    <button class="btn-save" id="btn-save" onclick="saveHTML()"></button>
+    <button class="btn-reset" onclick="resetAll()" id="t-btn-reset"></button>
+  </div>
+
+</div>
+
+<script>
+// All Thai text stored as unicode escapes - safe for any encoding
+var T = {
+  s0: '\u0e2a\u0e31\u0e48\u0e07 Lab \u0e40\u0e1a\u0e37\u0e49\u0e2d\u0e07\u0e15\u0e49\u0e19\u0e01\u0e48\u0e2d\u0e19\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19',
+  labHint: '\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e1c\u0e25 Lab \u0e04\u0e23\u0e1a\u0e01\u0e48\u0e2d\u0e19\u0e08\u0e36\u0e07\u0e08\u0e36\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e02\u0e31\u0e49\u0e19\u0e16\u0e31\u0e14\u0e44\u0e1b\u0e44\u0e14\u0e49',
+  cbc: 'Platelet \u2192 \u0e04\u0e33\u0e19\u0e27\u0e13 APRI/FIB-4',
+  bun: '\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e01\u0e32\u0e23\u0e17\u0e33\u0e07\u0e32\u0e19\u0e44\u0e15',
+  cr: '\u0e04\u0e33\u0e19\u0e27\u0e13 eGFR / CrCl \u2192 \u0e40\u0e25\u0e37\u0e2d\u0e01\u0e22\u0e32',
+  ast: '\u0e04\u0e33\u0e19\u0e27\u0e13 APRI/FIB-4',
+  alt: '\u0e15\u0e31\u0e14\u0e2a\u0e34\u0e19\u0e43\u0e08\u0e23\u0e31\u0e01\u0e29\u0e32 \u2014 \u0e2a\u0e33\u0e04\u0e31\u0e0d\u0e17\u0e35\u0e48\u0e2a\u0e38\u0e14',
+  labCountLabel: 'Lab \u0e17\u0e35\u0e48\u0e2a\u0e31\u0e48\u0e07\u0e41\u0e25\u0e49\u0e27',
+  btnLabDone: '\u0e44\u0e14\u0e49\u0e1c\u0e25 Lab \u0e41\u0e25\u0e49\u0e27 \u2192 \u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e15\u0e48\u0e2d',
+  sA: '\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e02\u0e49\u0e2d\u0e1a\u0e48\u0e07\u0e0a\u0e35\u0e49\u0e2a\u0e48\u0e07\u0e15\u0e48\u0e2d\u0e01\u0e48\u0e2d\u0e19',
+  qDecomp: '\u0e21\u0e35\u0e20\u0e32\u0e27\u0e30 Decompensated cirrhosis?',
+  qDecompHint: '\u0e15\u0e31\u0e27\u0e40\u0e2b\u0e25\u0e37\u0e2d\u0e07 \u0e17\u0e49\u0e2d\u0e07\u0e21\u0e32\u0e19 \u0e2a\u0e31\u0e1a\u0e2a\u0e19 (HE)',
+  qSpecial: '\u0e2d\u0e32\u0e22\u0e38 \u2264 18 \u0e1b\u0e35 \u0e2b\u0e23\u0e37\u0e15\u0e31\u0e49\u0e07\u0e04\u0e23\u0e23\u0e20\u0e4c?',
+  qCoinfect: '\u0e15\u0e34\u0e14\u0e40\u0e0a\u0e37\u0e49\u0e2d HIV \u0e2b\u0e23\u0e37\u0e2d HCV \u0e23\u0e48\u0e27\u0e21\u0e14\u0e49\u0e27\u0e22?',
+  qRenal: 'CrCl < 15 ml/min (\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e1f\u0e2d\u0e01\u0e44\u0e15)?',
+  yes: '\u2713 \u0e43\u0e0a\u0e48',
+  no: '\u2717 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48',
+  yesHave: '\u2713 \u0e21\u0e35',
+  noHave: '\u2717 \u0e44\u0e21\u0e48\u0e21\u0e35',
+  referVerdict: '\u0e2a\u0e48\u0e07\u0e15\u0e48\u0e2d\u0e42\u0e23\u0e07\u0e1e\u0e22\u0e32\u0e1a\u0e32\u0e25\u0e41\u0e21\u0e48\u0e02\u0e48\u0e32\u0e22',
+  referSub: '\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e1a\u0e48\u0e07\u0e0a\u0e35\u0e49\u0e17\u0e35\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e14\u0e39\u0e41\u0e25\u0e42\u0e14\u0e22\u0e1c\u0e39\u0e49\u0e40\u0e0a\u0e35\u0e48\u0e22\u0e27\u0e0a\u0e32\u0e0d',
+  referNote: '\u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07\u0e23\u0e2d\u0e2a\u0e48\u0e07\u0e15\u0e48\u0e2d: \u0e15\u0e34\u0e14\u0e15\u0e32\u0e21 ALT, Cr \u0e17\u0e38\u0e01 3 \u0e40\u0e14\u0e37\u0e2d\u0e19',
+  btnRefer: '\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a \u2192',
+  sB: '\u0e01\u0e23\u0e2d\u0e01\u0e04\u0e48\u0e32 Lab',
+  altLabel: '\u0e04\u0e48\u0e32 ALT \u0e1b\u0e31\u0e08\u0e08\u0e38\u0e1a\u0e31\u0e19',
+  ulnLabel: 'ULN \u0e02\u0e2d\u0e07 ALT \u0e2b\u0e49\u0e2d\u0e07 Lab',
+  ulnHint: '\u0e16\u0e49\u0e32\u0e44\u0e21\u0e48\u0e41\u0e19\u0e48\u0e43\u0e08: \u2642 \u0e43\u0e0a\u0e49 40 \xb7 \u2640 \u0e43\u0e0a\u0e49 35',
+  ulnPrefix: 'ULN =',
+  multHint: '\u0e01\u0e14\u0e40\u0e25\u0e37\u0e2d\u0e01 multiple \u0e02\u0e2d\u0e07 ULN:',
+  astLabel: '\u0e04\u0e48\u0e32 AST',
+  astHint: 'ULN \u0e02\u0e2d\u0e07 AST \u2248 40 U/L',
+  astUlnLabel: 'ULN \u0e02\u0e2d\u0e07 AST \u0e2b\u0e49\u0e2d\u0e07 Lab',
+  astUlnPrefix: 'ULN AST =',
+  pltLabel: '\u0e04\u0e48\u0e32 Platelet',
+  ageLabel: '\u0e2d\u0e32\u0e22\u0e38\u0e1c\u0e39\u0e49\u0e1b\u0e48\u0e27\u0e22',
+  ageUnit: '\u0e1b\u0e35',
+  btnDecide: '\u0e14\u0e39\u0e1c\u0e25\u0e41\u0e25\u0e30\u0e04\u0e33\u0e41\u0e19\u0e30\u0e19\u0e33 \u2192',
+  btnSave: '\u{1F4BE} \u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01 / \u0e2a\u0e48\u0e07\u0e15\u0e48\u0e2d\u0e1c\u0e25\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19',
+  btnReset: '\u{1F504} \u0e40\u0e23\u0e34\u0e48\u0e21\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e43\u0e2b\u0e21\u0e48',
+  // reasons
+  rDecomp: 'Decompensated cirrhosis (\u0e15\u0e31\u0e27\u0e40\u0e2b\u0e25\u0e37\u0e2d\u0e07 / \u0e17\u0e49\u0e2d\u0e07\u0e21\u0e32\u0e19 / \u0e2a\u0e31\u0e1a\u0e2a\u0e19)',
+  rSpecial: '\u0e2d\u0e32\u0e22\u0e38 \u2264 18 \u0e1b\u0e35 \u0e2b\u0e23\u0e37\u0e15\u0e31\u0e49\u0e07\u0e04\u0e23\u0e23\u0e20\u0e4c',
+  rCoinfect: '\u0e15\u0e34\u0e14\u0e40\u0e0a\u0e37\u0e49\u0e2d HIV \u0e2b\u0e23\u0e37\u0e2d HCV \u0e23\u0e48\u0e27\u0e21\u0e14\u0e49\u0e27\u0e22',
+  rRenal: 'CrCl < 15 ml/min (\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e1f\u0e2d\u0e01\u0e44\u0e15)',
+  // results
+  v1: '\u0e2a\u0e48\u0e07\u0e15\u0e48\u0e2d\u0e42\u0e23\u0e07\u0e1e\u0e22\u0e32\u0e1a\u0e32\u0e25\u0e41\u0e21\u0e48\u0e02\u0e48\u0e32\u0e22',
+  v2: 'Refer \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e1e\u0e34\u0e08\u0e32\u0e23\u0e13\u0e32\u0e23\u0e31\u0e1a\u0e22\u0e32\u0e17\u0e35\u0e48 \u0e23\u0e1e.\u0e41\u0e21\u0e48\u0e02\u0e48\u0e32\u0e22',
+  v3: '\u0e15\u0e34\u0e14\u0e15\u0e32\u0e21\u0e17\u0e35\u0e48 \u0e23\u0e1e\u0e0a. \u0e44\u0e14\u0e49',
+  v4: '\u0e15\u0e34\u0e14\u0e15\u0e32\u0e21\u0e17\u0e35\u0e48 \u0e23\u0e1e\u0e0a.',
+  sub1: '\u0e2a\u0e07\u0e2a\u0e31\u0e22 Cirrhosis',
+  sub2: '\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e1a\u0e48\u0e07\u0e0a\u0e35\u0e49\u0e23\u0e31\u0e01\u0e29\u0e32',
+  sub3: 'APRI \u0e41\u0e25\u0e30 FIB-4 \u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e40\u0e01\u0e34\u0e19\u0e40\u0e01\u0e13\u0e11\u0e4c',
+  sub4: 'ALT \u0e1b\u0e01\u0e15\u0e34 / Inactive carrier',
+  st1: '\u0e41\u0e19\u0e1a\u0e1c\u0e25 Lab \u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14\u0e44\u0e1b\u0e14\u0e49\u0e27\u0e22',
+  st2: '\u0e15\u0e34\u0e14\u0e15\u0e32\u0e21 ALT, Cr \u0e17\u0e38\u0e01 3 \u0e40\u0e14\u0e37\u0e2d\u0e19\u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07\u0e23\u0e2d',
+  st3: '\u0e16\u0e49\u0e32\u0e21\u0e35\u0e2d\u0e32\u0e01\u0e32\u0e23 Decompensated \u2192 \u0e40\u0e23\u0e34\u0e48\u0e21 TDF \u0e01\u0e48\u0e2d\u0e19\u0e44\u0e14\u0e49',
+  st4: '\u0e41\u0e19\u0e1a\u0e1c\u0e25 Lab \u0e17\u0e31\u0e49\u0e07\u0e2b\u0e21\u0e14 (ALT, AST, Platelet, Cr)',
+  st5: '\u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07\u0e23\u0e2d: \u0e15\u0e34\u0e14\u0e15\u0e32\u0e21 ALT + Cr \u0e17\u0e38\u0e01 3 \u0e40\u0e14\u0e37\u0e2d\u0e19',
+  st6: '\u0e41\u0e08\u0e49\u0e1c\u0e39\u0e49\u0e1b\u0e48\u0e27\u0e22\u0e49\u0e2b\u0e49\u0e32\u0e21\u0e14\u0e37\u0e48\u0e21\u0e41\u0e2d\u0e25\u0e01\u0e2d\u0e2e\u0e2d\u0e25\u0e4c',
+  st7: '\u0e19\u0e31\u0e14 ALT \u0e0b\u0e49\u0e33\u0e17\u0e38\u0e01 3 \u0e40\u0e14\u0e37\u0e2d\u0e19',
+  st8: '\u0e16\u0e49\u0e32 ALT >2\u00d7ULN \u2192 Refer \u0e23\u0e1e.\u0e41\u0e21\u0e48\u0e02\u0e48\u0e32\u0e22',
+  st9: '\u0e16\u0e49\u0e32 APRI >1.5 \u0e2b\u0e23\u0e37\u0e20 FIB-4 >3.25 \u2192 Refer',
+  st10: '\u0e19\u0e31\u0e14\u0e15\u0e34\u0e14\u0e15\u0e32\u0e21 AST, ALT, Platelet \u0e17\u0e38\u0e01 6\u201312 \u0e40\u0e14\u0e37\u0e2d\u0e19',
+  st11: '\u0e16\u0e49\u0e32 ALT \u0e40\u0e1e\u0e34\u0e48\u0e21\u0e02\u0e36\u0e49\u0e19 \u2192 \u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e0b\u0e49\u0e33',
+  st12us: 'Ultrasound \u00b1 AFP \u0e17\u0e38\u0e01 6\u201312 \u0e40\u0e14\u0e37\u0e2d\u0e19 (\u0e2d\u0e32\u0e22\u0e38 >40 \u0e1b\u0e35)',
+  st12us2: '\u0e41\u0e19\u0e1a\u0e19\u0e33 Ultrasound \u0e15\u0e31\u0e1a',
+  drugTitle: '\u0e22\u0e32\u0e17\u0e35\u0e48\u0e04\u0e32\u0e14\u0e27\u0e48\u0e32\u0e08\u0e3ec\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e17\u0e35\u0e48 \u0e23\u0e1e.\u0e41\u0e21\u0e48\u0e02\u0e48\u0e32\u0e22',
+  taf: 'TAF 25 mg \u0e27\u0e31\u0e19\u0e25\u0e30 1 \u0e40\u0e21\u0e47\u0e14 (\u0e1a\u0e31\u0e0d\u0e0a\u0e35 \u0e07 / UC)',
+  tdf: 'TDF 300 mg \u2014 \u0e15\u0e31\u0e49\u0e07\u0e04\u0e23\u0e23\u0e20\u0e4c \u0e2b\u0e23\u0e37\u0e2d Decompensated',
+  cirrhosis: '\u0e2a\u0e07\u0e2a\u0e31\u0e22 Cirrhosis',
+  f01: 'F0\u2013F1',
+  f23: 'F2\u2013F3',
+  indet: 'Indeterminate',
+  low: 'Low',
+  // save button states
+  saving: '\u23f3 \u0e01\u0e33\u0e25\u0e31\u0e07\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e44\u0e1f\u0e25\u0e4c...',
+  saved: '\u2713 \u0e14\u0e32\u0e27\u0e19\u0e4c\u0e42\u0e2b\u0e25\u0e14\u0e41\u0e25\u0e49\u0e27 \u2014 \u0e40\u0e1b\u0e34\u0e14\u0e44\u0e1f\u0e25\u0e4c\u0e41\u0e25\u0e49\u0e27\u0e01\u0e14 "\u0e1e\u0e34\u0e21\u0e1e\u0e4c / PDF"',
+  // pdf labels
+  pdfOrg: 'Clinical Decision Support \u00b7 \u0e42\u0e23\u0e07\u0e1e\u0e22\u0e32\u0e1a\u0e32\u0e25\u0e0a\u0e38\u0e21\u0e0a\u0e19',
+  pdfSub: '\u0e41\u0e1a\u0e1a\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e41\u0e19\u0e27\u0e17\u0e32\u0e07\u0e08\u0e31\u0e14\u0e01\u0e32\u0e23 \u00b7 DDC 2565 \u00b7 WHO 2024',
+  pdfDate: '\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19',
+  pdfRef: '\u0e2d\u0e49\u0e32\u0e07\u0e2d\u0e34\u0e07: \u0e01\u0e23\u0e21\u0e04\u0e27\u0e1a\u0e04\u0e38\u0e21\u0e42\u0e23\u0e04 2565 \u00b7 WHO HBV Guidelines 2024',
+  pdfDisclaim: '\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e21\u0e37\u0e2d\u0e0a\u0e48\u0e27\u0e22\u0e15\u0e31\u0e14\u0e2a\u0e34\u0e19\u0e43\u0e08\u0e40\u0e1a\u0e37\u0e49\u0e2d\u0e07\u0e15\u0e49\u0e19 \u2014 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e49\u0e41\u0e17\u0e19\u0e01\u0e32\u0e23\u0e27\u0e34\u0e19\u0e34\u0e08\u0e09\u0e31\u0e22\u0e17\u0e32\u0e07\u0e04\u0e25\u0e34\u0e19\u0e34\u0e01',
+  pdfPrint: '\u{1F5A8}\ufe0f \u0e1e\u0e34\u0e21\u0e1e\u0e4c / \u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e40\u0e1b\u0e47\u0e19 PDF',
+  tlDecomp: 'Decompensated cirrhosis',
+  tlSpecial: '\u0e2d\u0e32\u0e22\u0e38 \u2264 18 \u0e1b\u0e35 / \u0e15\u0e31\u0e49\u0e07\u0e04\u0e23\u0e23\u0e20\u0e4c',
+  tlCoinfect: '\u0e15\u0e34\u0e14\u0e40\u0e0a\u0e37\u0e49\u0e2d HIV \u0e2b\u0e23\u0e37\u0e2d HCV',
+  tlRenal: 'CrCl < 15 ml/min',
+  ansYes: '\u2713 \u0e43\u0e0a\u0e48',
+  ansNo: '\u2717 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48',
+};
+
+// Init text
+function initText() {
+  var m = {
+    't-s0':T.s0,'t-lab-hint':T.labHint,'t-cbc':T.cbc,'t-bun':T.bun,'t-cr':T.cr,'t-ast':T.ast,'t-alt':T.alt,
+    't-lab-count-label':T.labCountLabel,'t-sA':T.sA,'t-q-decomp':T.qDecomp,'t-q-decomp-hint':T.qDecompHint,
+    't-q-special':T.qSpecial,'t-q-coinfect':T.qCoinfect,'t-q-renal':T.qRenal,
+    't-yes1':T.yesHave,'t-no1':T.noHave,'t-yes2':T.yes,'t-no2':T.no,
+    't-yes3':T.yes,'t-no3':T.no,'t-yes4':T.yes,'t-no4':T.no,
+    't-refer-verdict':T.referVerdict,'t-refer-sub':T.referSub,'t-refer-note':T.referNote,
+    't-sB':T.sB,'t-alt-label':T.altLabel,'t-uln-label':T.ulnLabel,'t-uln-hint':T.ulnHint,
+    't-uln-prefix':T.ulnPrefix,'t-mult-hint':T.multHint,'t-ast-label':T.astLabel,'t-ast-hint':T.astHint,
+    't-astuln-label':T.astUlnLabel,'t-astuln-prefix':T.astUlnPrefix,'t-plt-label':T.pltLabel,
+    't-age-label':T.ageLabel,'t-age-unit':T.ageUnit
+  };
+  Object.keys(m).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = m[id];
+  });
+  document.getElementById('btn-lab-done').textContent = T.btnLabDone;
+  document.getElementById('btn-refer').textContent = T.btnRefer;
+  document.getElementById('btn-decide').textContent = T.btnDecide;
+  document.getElementById('btn-save').textContent = T.btnSave;
+  document.getElementById('t-btn-reset').textContent = T.btnReset;
+  var altInput = document.getElementById('alt-val');
+  if(altInput) altInput.placeholder = '55';
+  var astInput = document.getElementById('ast-val');
+  if(astInput) astInput.placeholder = '48';
+  var pltInput = document.getElementById('plt-val');
+  if(pltInput) pltInput.placeholder = '180';
+  var ageInput = document.getElementById('age-val');
+  if(ageInput) ageInput.placeholder = '42';
+}
+window.addEventListener('DOMContentLoaded', initText);
+
+var labChecked = {cbc:false,bun:false,cr:false,ast:false,alt:false};
+var state = {decomp:null,special:null,coinfect:null,renal:null};
+var uln = 40, astUln = 40;
+
+function toggleLab(el,key) {
+  labChecked[key] = !labChecked[key];
+  el.classList.toggle('checked',labChecked[key]);
+  document.getElementById('chk-'+key).textContent = labChecked[key] ? '\u2611' : '\u2610';
+  var count = Object.values(labChecked).filter(Boolean).length;
+  document.getElementById('lab-count').textContent = count+' / 5';
+  document.getElementById('lab-bar').style.width = (count/5*100)+'%';
+  document.getElementById('lab-bar').style.background = count===5?'var(--green)':'var(--blue)';
+  document.getElementById('btn-lab-done').disabled = count<5;
+}
+
+function labDone() {
+  var sec = document.getElementById('s0');
+  sec.classList.add('done');
+  var n = document.getElementById('n0');
+  n.textContent='\u2713'; n.style.background='var(--green)';
+  var r = document.getElementById('sA');
+  r.style.display='block'; r.classList.add('active');
+  r.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function setToggle(key,val,btn) {
+  state[key]=val;
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(function(b){
+    b.classList.remove('sel-yes','sel-no');
+  });
+  btn.classList.add(val==='yes'?'sel-yes':'sel-no');
+  var keys=['decomp','special','coinfect','renal'];
+  document.getElementById('btn-refer').disabled=!keys.every(function(k){return state[k]!==null;});
+}
+
+function checkRefer() {
+  var reasons=[];
+  if(state.decomp==='yes') reasons.push(T.rDecomp);
+  if(state.special==='yes') reasons.push(T.rSpecial);
+  if(state.coinfect==='yes') reasons.push(T.rCoinfect);
+  if(state.renal==='yes') reasons.push(T.rRenal);
+  if(reasons.length>0) {
+    document.getElementById('refer-reasons').innerHTML=reasons.map(function(r){
+      return '<div class="refer-item"><span>&#9888;</span><span>'+r+'</span></div>';
+    }).join('');
+    document.getElementById('refer-result').style.display='block';
+    document.getElementById('btn-refer').style.display='none';
+  } else {
+    document.getElementById('sA').classList.add('done');
+    document.getElementById('nA').textContent='\u2713';
+    document.getElementById('nA').classList.add('done-num');
+    var lab=document.getElementById('sB');
+    lab.style.display='block'; lab.classList.add('active');
+    lab.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+function updateULN(){uln=parseInt(document.getElementById('uln-range').value);document.getElementById('uln-display').textContent=uln;updateCalc();}
+function updateASTULN(){astUln=parseInt(document.getElementById('ast-uln-range').value);document.getElementById('ast-uln-display').textContent=astUln;updateCalc();}
+function setAltMult(mult,ev){
+  document.getElementById('alt-val').value=Math.round(uln*mult);
+  document.querySelectorAll('.mult-chip').forEach(function(c){c.classList.remove('sel');});
+  ev.target.classList.add('sel');
+  updateCalc();
+}
+
+function updateCalc(){
+  var alt=parseFloat(document.getElementById('alt-val').value);
+  var ast=parseFloat(document.getElementById('ast-val').value);
+  var plt=parseFloat(document.getElementById('plt-val').value);
+  var age=parseFloat(document.getElementById('age-val').value);
+  var hasA=!isNaN(alt)&&alt>0;
+  var hasF=hasA&&!isNaN(ast)&&ast>0&&!isNaN(plt)&&plt>0&&!isNaN(age)&&age>0;
+  document.getElementById('calc-row').style.display=hasA?'flex':'none';
+  if(hasA){
+    var m=alt/uln;
+    var ca=document.getElementById('chip-altm');
+    ca.className='calc-chip '+(m>=2?'chip-high':m>=1?'chip-mid':'chip-low');
+    document.getElementById('val-alt-mult').textContent=m.toFixed(1)+'\u00d7';
+    document.getElementById('grade-alt-mult').textContent=m>=2?'\u22652\u00d7ULN \u26a1':m>=1?'1\u20132\u00d7ULN':'<1\u00d7ULN \u2713';
+  }
+  if(hasF){
+    var apri=((ast/astUln)/plt)*100;
+    var fib4=(age*ast)/(plt*Math.sqrt(alt));
+    var cp=document.getElementById('chip-apri');
+    cp.className='calc-chip '+(apri>1.5?'chip-high':apri>=0.5?'chip-mid':'chip-low');
+    document.getElementById('val-apri').textContent=apri.toFixed(2);
+    document.getElementById('grade-apri').textContent=apri>1.5?T.cirrhosis:apri>=0.5?T.f23:T.f01;
+    var cf=document.getElementById('chip-fib4');
+    cf.className='calc-chip '+(fib4>3.25?'chip-high':fib4>=1.3?'chip-mid':'chip-low');
+    document.getElementById('val-fib4').textContent=fib4.toFixed(2);
+    document.getElementById('grade-fib4').textContent=fib4>3.25?T.cirrhosis:fib4>=1.3?T.indet:T.low;
+  }
+  document.getElementById('btn-decide').disabled=!hasF;
+}
+
+function decide(){
+  var alt=parseFloat(document.getElementById('alt-val').value);
+  var ast=parseFloat(document.getElementById('ast-val').value);
+  var plt=parseFloat(document.getElementById('plt-val').value);
+  var age=parseFloat(document.getElementById('age-val').value);
+  var am=alt/uln;
+  var apri=((ast/astUln)/plt)*100;
+  var fib4=(age*ast)/(plt*Math.sqrt(alt));
+  var html='';
+  if(apri>1.5||fib4>3.25){
+    var cr=[];
+    if(apri>1.5) cr.push('APRI '+apri.toFixed(2)+' (>1.5)');
+    if(fib4>3.25) cr.push('FIB-4 '+fib4.toFixed(2)+' (>3.25)');
+    html=mkR('r-refer','&#128228;',T.v1,T.sub1+' \u2014 '+cr.join(' / '),[T.st1,T.st2,T.st3],false);
+  } else if(am>2){
+    html=mkR('r-refer','&#128228;',T.v2,T.sub2+' (ALT '+am.toFixed(1)+'\u00d7ULN)',[T.st4,T.st5,T.st6],true);
+  } else if(am>=1){
+    html=mkR('r-watch','&#9203;',T.v3,am.toFixed(1)+'\u00d7ULN \u2014 '+T.sub3,[T.st7,T.st8,T.st9],false);
+  } else {
+    html=mkR('r-monitor','&#128065;',T.v4,T.sub4,[T.st10,T.st11,age>40?T.st12us:T.st12us2],false);
+  }
+  document.getElementById('sB').classList.add('done');
+  document.getElementById('sB').classList.remove('active');
+  document.getElementById('sec-result').style.display='block';
+  document.getElementById('main-result').innerHTML=html;
+  document.getElementById('sec-result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function mkR(cls,icon,verdict,sub,steps,drug){
+  var s=steps.map(function(t){return '<div class="result-step"><span class="step-dot"></span><span>'+t+'</span></div>';}).join('');
+  var d=drug?'<div class="divider"></div><div style="font-size:12px;font-weight:600;margin-bottom:6px;">'+T.drugTitle+'</div><div class="drug-mini"><span class="drug-tag dtag-f">&#127945; '+T.taf+'</span><span class="drug-tag dtag-a">&#127946; '+T.tdf+'</span></div>':'';
+  return '<div class="result-box '+cls+' show"><div class="result-icon">'+icon+'</div><div class="result-verdict">'+verdict+'</div><div class="result-sub">'+sub+'</div><div class="result-steps">'+s+'</div>'+d+'</div>';
+}
+
+function saveHTML(){
+  var btn=document.getElementById('btn-save');
+  btn.textContent=T.saving; btn.disabled=true;
+  var now=new Date();
+  var dd=now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  var tt=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  var dateStr=dd+' \u0e40\u0e27\u0e25\u0e32 '+tt+' \u0e19.';
+  var tl={decomp:T.tlDecomp,special:T.tlSpecial,coinfect:T.tlCoinfect,renal:T.tlRenal};
+  var tRows='';
+  ['decomp','special','coinfect','renal'].forEach(function(k){
+    var v=state[k],ans=v==='yes'?T.ansYes:v==='no'?T.ansNo:'\u2014';
+    var fc=v==='yes'?'#b91c1c':v==='no'?'#047857':'#555';
+    var bg=v==='yes'?'#fef2f2':v==='no'?'#f0fdf4':'#fff';
+    tRows+='<tr><td class="tl">'+tl[k]+'</td><td class="tv" style="color:'+fc+';background:'+bg+'">'+ans+'</td></tr>';
+  });
+  var alt=document.getElementById('alt-val').value||'\u2014';
+  var ast=document.getElementById('ast-val').value||'\u2014';
+  var plt=document.getElementById('plt-val').value||'\u2014';
+  var age=document.getElementById('age-val').value||'\u2014';
+  var apriV=document.getElementById('val-apri').textContent||'\u2014';
+  var fib4V=document.getElementById('val-fib4').textContent||'\u2014';
+  var altMV=document.getElementById('val-alt-mult').textContent||'\u2014';
+  var box=document.querySelector('.result-box.show');
+  var verdict=box?box.querySelector('.result-verdict').textContent:'\u2014';
+  var sub=box?box.querySelector('.result-sub').textContent:'';
+  var steps=box?Array.from(box.querySelectorAll('.result-step span:last-child')).map(function(s){return s.textContent;}):[]; 
+  var hasDrug=box&&box.querySelector('.drug-mini');
+  var vc='#111',vbg='#f9f9f9',vb='#ccc';
+  if(box){
+    if(box.classList.contains('r-refer')){vc='#b91c1c';vbg='#fef2f2';vb='#b91c1c';}
+    if(box.classList.contains('r-watch')){vc='#92400e';vbg='#fffbeb';vb='#d97706';}
+    if(box.classList.contains('r-monitor')){vc='#1e40af';vbg='#eff6ff';vb='#3b82f6';}
+  }
+  var sRows=steps.map(function(s,i){return '<tr><td class="sn">'+(i+1)+'.</td><td class="st">'+s+'</td></tr>';}).join('');
+  var dBlock=hasDrug?'<div class="db"><div class="dt">'+T.drugTitle+'</div><div class="dr"><span class="dbg f">TAF 25 mg</span> '+T.taf.replace('TAF 25 mg ','')+'</div><div class="dr"><span class="dbg a">TDF 300 mg</span> '+T.tdf.replace('TDF 300 mg \u2014 ','')+'</div></div>':'';
+  var css='@import url("https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap");*{box-sizing:border-box;margin:0;padding:0;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}body{font-family:"Sarabun",sans-serif;font-size:13px;color:#111;background:#fff;padding:15mm 15mm 12mm 15mm;}.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #111;padding-bottom:10px;margin-bottom:12px;}.ht{font-size:22px;font-weight:800;line-height:1.15;}.hs{font-size:10px;color:#6b7280;margin-top:3px;}.hd{text-align:right;font-size:10px;color:#6b7280;flex-shrink:0;margin-left:12px;white-space:nowrap;}.hd strong{display:block;font-size:11px;color:#111;font-weight:700;margin-top:2px;}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.sec{margin-bottom:10px;}.stitle{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6b7280;border-bottom:1px solid #e5e7eb;padding-bottom:3px;margin-bottom:6px;}table{width:100%;border-collapse:collapse;}.tl{padding:4px 7px;border:1px solid #e5e7eb;font-size:11px;color:#374151;background:#f9fafb;width:62%;}.tv{padding:4px 7px;border:1px solid #e5e7eb;font-size:11px;font-weight:700;}.l2{padding:4px 7px;border:1px solid #e5e7eb;font-size:11px;color:#6b7280;background:#f9fafb;width:26%;}.v2{padding:4px 7px;border:1px solid #e5e7eb;font-size:11px;font-weight:700;width:24%;}.tn{padding:4px 7px;border:1px solid #e5e7eb;font-size:9.5px;color:#9ca3af;}.rc{border:2.5px solid '+vb+';background:'+vbg+';border-radius:7px;padding:12px;}.vd{font-size:17px;font-weight:800;color:'+vc+';line-height:1.3;margin-bottom:3px;}.rs{font-size:11px;color:#4b5563;margin-bottom:8px;line-height:1.5;}.sh{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#6b7280;margin-bottom:4px;}.sn{padding:4px 5px;border:1px solid #e5e7eb;font-size:11px;font-weight:800;color:'+vc+';text-align:center;width:20px;}.st{padding:4px 8px;border:1px solid #e5e7eb;font-size:11px;line-height:1.5;}.db{margin-top:9px;padding-top:8px;border-top:1px solid #d1d5db;}.dt{font-size:9px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:5px;}.dr{font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:6px;}.dbg{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0;}.dbg.f{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}.dbg.a{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}.footer{border-top:1px solid #e5e7eb;margin-top:12px;padding-top:6px;display:flex;justify-content:space-between;font-size:8.5px;color:#9ca3af;}.pbtn{display:block;margin:16px auto 0;padding:10px 28px;font-size:14px;font-family:"Sarabun",sans-serif;background:#1a56db;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;}@media print{@page{size:A4 portrait;margin:10mm 12mm;}body{padding:0;}.pbtn{display:none!important;}}';
+  var stitleRefer=T.sA.split('\u0e01\u0e48\u0e2d\u0e19')[0]||'\u0e02\u0e49\u0e2d\u0e1a\u0e48\u0e07\u0e0a\u0e35\u0e49\u0e2a\u0e48\u0e07\u0e15\u0e48\u0e2d';
+  var body='<div class="hdr"><div><div style="font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:#9ca3af;margin-bottom:2px;">'+T.pdfOrg+'</div><div class="ht">HBsAg Positive</div><div class="hs">'+T.pdfSub+'</div></div><div class="hd">'+T.pdfDate+'<strong>'+dateStr+'</strong></div></div><div class="grid"><div><div class="sec"><div class="stitle">'+T.sA+'</div><table><tbody>'+tRows+'</tbody></table></div><div class="sec"><div class="stitle">Lab</div><table><tbody><tr><td class="l2">ALT</td><td class="v2">'+alt+' U/L</td><td class="l2">ALT/ULN</td><td class="v2">'+altMV+'</td></tr><tr><td class="l2">AST</td><td class="v2">'+ast+' U/L</td><td class="l2">Platelet</td><td class="v2">'+plt+' \u00d710\u2079/L</td></tr><tr><td class="l2">\u0e2d\u0e32\u0e22\u0e38</td><td class="v2">'+age+' \u0e1b\u0e35</td><td class="l2">ULN (ALT)</td><td class="v2">'+uln+' U/L</td></tr></tbody></table></div><div class="sec"><div class="stitle">Fibrosis Score</div><table><tbody><tr><td class="l2">APRI</td><td class="v2">'+apriV+'</td><td class="tn" colspan="2">\u0e40\u0e01\u0e13\u0e11\u0e4c Cirrhosis: &gt; 1.5</td></tr><tr><td class="l2">FIB-4</td><td class="v2">'+fib4V+'</td><td class="tn" colspan="2">\u0e40\u0e01\u0e13\u0e11\u0e4c Cirrhosis: &gt; 3.25</td></tr></tbody></table></div></div><div><div class="stitle">\u0e1c\u0e25\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19\u0e41\u0e25\u0e30\u0e04\u0e33\u0e41\u0e19\u0e30\u0e19\u0e33</div><div class="rc"><div class="vd">'+verdict+'</div><div class="rs">'+sub+'</div><div class="sh">\u0e2a\u0e34\u0e48\u0e07\u0e17\u0e35\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e17\u0e33\u0e15\u0e48\u0e2d</div><table><tbody>'+sRows+'</tbody></table>'+dBlock+'</div></div></div><div class="footer"><span>'+T.pdfRef+'</span><span>'+T.pdfDisclaim+'</span></div><button class="pbtn" onclick="window.print()">'+T.pdfPrint+'</button>';
+  var html='<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>HBsAg Assessment</title><style>'+css+'</style></head><body>'+body+'</body></html>';
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='HBsAg_Assessment.html';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},3000);
+  btn.textContent=T.saved; btn.style.background='var(--green)';
+  setTimeout(function(){btn.textContent=T.btnSave;btn.style.background='';btn.disabled=false;},6000);
+}
+
+function resetAll(){
+  labChecked={cbc:false,bun:false,cr:false,ast:false,alt:false};
+  document.querySelectorAll('.lab-item').forEach(function(el){el.classList.remove('checked');});
+  ['cbc','bun','cr','ast','alt'].forEach(function(k){document.getElementById('chk-'+k).textContent='\u2610';});
+  document.getElementById('lab-count').textContent='0 / 5';
+  document.getElementById('lab-bar').style.width='0%';
+  document.getElementById('lab-bar').style.background='var(--blue)';
+  document.getElementById('btn-lab-done').disabled=true;
+  var n0=document.getElementById('n0');
+  n0.textContent='0'; n0.style.background='var(--blue)';
+  document.getElementById('s0').classList.remove('done');
+  state={decomp:null,special:null,coinfect:null,renal:null};
+  document.querySelectorAll('.toggle-btn').forEach(function(b){b.classList.remove('sel-yes','sel-no');});
+  document.getElementById('refer-result').style.display='none';
+  document.getElementById('btn-refer').style.display='block';
+  document.getElementById('btn-refer').disabled=true;
+  document.getElementById('sA').style.display='none';
+  document.getElementById('sA').classList.remove('done','active');
+  document.getElementById('nA').textContent='A';
+  document.getElementById('nA').classList.remove('done-num');
+  document.querySelectorAll('.mult-chip').forEach(function(c){c.classList.remove('sel');});
+  ['alt-val','ast-val','plt-val','age-val'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('calc-row').style.display='none';
+  document.getElementById('btn-decide').disabled=true;
+  document.getElementById('sB').style.display='none';
+  document.getElementById('sB').classList.remove('done','active');
+  document.getElementById('sec-result').style.display='none';
+  document.getElementById('main-result').innerHTML='';
+  uln=40; astUln=40;
+  document.getElementById('uln-range').value=40; document.getElementById('uln-display').textContent='40';
+  document.getElementById('ast-uln-range').value=40; document.getElementById('ast-uln-display').textContent='40';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./sw.js').then(function(registration) {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      }, function(err) {
+        console.log('ServiceWorker registration failed: ', err);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
