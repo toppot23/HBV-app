@@ -162,7 +162,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
           <div id="lab-bar" style="height:100%;width:0%;background:var(--blue);border-radius:4px;transition:width 0.3s;"></div>
         </div>
       </div>
-      <button class="btn-primary" id="btn-lab-done" onclick="labDone()" disabled></button>
+      <button class="btn-primary" id="btn-lab-done" onclick="labDone()"></button>
     </div>
   </div>
 
@@ -315,7 +315,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 </div>
 
 <script>
-// สังเกตตรงตัวแปร T ด้านล่างนี้ ผมไล่พิมพ์ภาษาไทยตรงๆ ไม่ใช้เลขฐาน 16 แล้วเพื่อแก้ปัญหาสระลอย/ตกหล่นครับ
+// ประกาศข้อความภาษาไทยกลางไว้ตรงนี้ที่เดียวอย่างถูกต้อง ไร้อักขระแอบแฝง
 var T = {
   s0: 'สั่ง Lab เบื้องต้นก่อนประเมิน',
   labHint: 'ต้องมีผล Lab ครบก่อนจึงจะดำเนินการขั้นถัดไปได้',
@@ -357,12 +357,13 @@ var T = {
   btnSave: '💾 บันทึก / ส่งต่อผลประเมิน',
   btnReset: '🔄 เริ่มประเมินใหม่',
   
-  // ผลลัพธ์ (คีย์เวิร์ดสำคัญที่ใช้ตรวจจับ)
+  // ข้อบ่งชี้ / เหตุผลการส่งต่อ
   rDecomp: 'Decompensated cirrhosis (ตัวเหลือง / ท้องมาน / สับสน)',
   rSpecial: 'อายุ ≤ 18 ปี หรือตั้งครรภ์',
   rCoinfect: 'ติดเชื้อ HIV หรือ HCV ร่วมด้วย',
   rRenal: 'CrCl < 15 ml/min (ไม่ได้ฟอกไต)',
   
+  // คำวินิจฉัยหลัก
   v1: 'ส่งต่อโรงพยาบาลแม่ข่าย',
   v2: 'Refer เพื่อพิจารณารับยาที่ รพ.แม่ข่าย',
   v3: 'ติดตามที่ รพช. ได้',
@@ -373,12 +374,13 @@ var T = {
   sub3: 'APRI และ FIB-4 ยังไม่เกินเกณฑ์',
   sub4: 'ALT ปกติ / Inactive carrier',
   
+  // รายการสเต็ปแนะนำ
   st1: 'แนบผล Lab ทั้งหมดไปด้วย',
   st2: 'ระหว่างรอ: ติดตาม ALT, Cr ทุก 3 เดือน',
   st3: 'ถ้ามีอาการ Decompensated → เริ่ม TDF ก่อนได้',
   st4: 'แนบผล Lab ทั้งหมด (ALT, AST, Platelet, Cr)',
   st5: 'ระหว่างรอ: ติดตาม ALT + Cr ทุก 3 เดือน',
-  st6: 'แจ้งผู้ป่วยห้ามดื่มแอลกอฮอล์',             // แก้ไขคำสะกดผิดจุดนี้ในสคริปต์หลักแล้วครับ
+  st6: 'แจ้งผู้ป่วยห้ามดื่มแอลกอฮอล์',                // แก้ไขตัวสะกดถูกต้อง 100%
   st7: 'นัด ALT ซ้ำทุก 3 เดือน',
   st8: 'ถ้า ALT > 2xULN → Refer รพ.แม่ข่าย',
   st9: 'ถ้า APRI > 1.5 หรือ FIB-4 > 3.25 → Refer',
@@ -387,7 +389,7 @@ var T = {
   st12us: 'Ultrasound ± AFP ทุก 6–12 เดือน (อายุ > 40 ปี)',
   st12us2: 'แนะนำ Ultrasound ตับ',
   
-  drugTitle: 'ยาที่คาดว่าจะได้รับที่ รพ.แม่ข่าย',    // แก้ไขคำว่า "จะได้รับ" ไม่ให้สี่เหลี่ยมขึ้น
+  drugTitle: 'ยาที่คาดว่าจะได้รับที่ รพ.แม่ข่าย',       // ป้องกันปัญหาสี่เหลี่ยมจากการ hardcode
   taf: 'TAF 25 mg วันละ 1 เม็ด (บัญชี ง / UC)',
   tdf: 'TDF 300 mg — ตั้งครรภ์ หรือ Decompensated',
   cirrhosis: 'สงสัย Cirrhosis',
@@ -543,7 +545,6 @@ function decide(){
   var fib4=(age*ast)/(plt*Math.sqrt(alt));
   var html='';
   
-  // รื้อฟังก์ชันข้างล่างนี้ใหม่หมด ให้ดึงจากอ็อบเจกต์ T ทั้งหมด ไร้คำฮาร์ดโค้ดแล้วครับ
   if(apri>1.5||fib4>3.25){
     var cr=[];
     if(apri>1.5) cr.push('APRI '+apri.toFixed(2)+' (>1.5)');
